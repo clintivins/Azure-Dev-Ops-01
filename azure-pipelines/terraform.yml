@@ -10,55 +10,48 @@ trigger:
 pr: none
 
 variables:
-  - name: terraformVersion
-    value: "1.15.6"
-  - name: workingDirectory
-    value: "terraform/environments/dev"
-  - name: serviceConnection
-    value: "Azure-ARM-MainSub01"
-  - name: backendResourceGroup
-    value: "rg-devops-clintivinsicloud"
-  - name: backendStorageAccount
-    value: "sttfdevcursororg01"
-  - name: backendContainer
-    value: "tfstate"
-  - name: backendKey
-    value: "dev.terraform.tfstate"
+  terraformVersion: "1.15.6"
+  workingDirectory: "terraform/environments/dev"
+  serviceConnection: "Azure-ARM-MainSub01"
+  backendResourceGroup: "rg-devops-clintivinsicloud"
+  backendStorageAccount: "sttfdevcursororg01"
+  backendContainer: "tfstate"
+  backendKey: "dev.terraform.tfstate"
 
 stages:
   - stage: Validate
     displayName: Validate Terraform
     jobs:
       - job: Validate
-        displayName: fmt and validate
+        displayName: Init and validate
         pool:
           vmImage: ubuntu-latest
         steps:
           - checkout: self
 
-          - task: TerraformInstaller@1
-            displayName: Install Terraform
+          - task: AzureCLI@2
+            displayName: Terraform init and validate
             inputs:
-              terraformVersion: $(terraformVersion)
-
-          - task: TerraformTaskV4@4
-            displayName: Terraform init
-            inputs:
-              provider: azurerm
-              command: init
-              workingDirectory: $(workingDirectory)
-              backendServiceArm: $(serviceConnection)
-              backendAzureRmResourceGroupName: $(backendResourceGroup)
-              backendAzureRmStorageAccountName: $(backendStorageAccount)
-              backendAzureRmContainerName: $(backendContainer)
-              backendAzureRmKey: $(backendKey)
-
-          - task: TerraformTaskV4@4
-            displayName: Terraform validate
-            inputs:
-              provider: azurerm
-              command: validate
-              workingDirectory: $(workingDirectory)
+              azureSubscription: $(serviceConnection)
+              scriptType: bash
+              scriptLocation: inlineScript
+              addSpnToEnvironment: true
+              inlineScript: |
+                set -euo pipefail
+                curl -fsSL "https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip" -o terraform.zip
+                unzip -o terraform.zip
+                sudo mv terraform /usr/local/bin/
+                cd "$(workingDirectory)"
+                export ARM_CLIENT_ID="$servicePrincipalId"
+                export ARM_CLIENT_SECRET="$servicePrincipalKey"
+                export ARM_TENANT_ID="$tenantId"
+                export ARM_SUBSCRIPTION_ID="$(az account show --query id -o tsv)"
+                terraform init -input=false \
+                  -backend-config="resource_group_name=$(backendResourceGroup)" \
+                  -backend-config="storage_account_name=$(backendStorageAccount)" \
+                  -backend-config="container_name=$(backendContainer)" \
+                  -backend-config="key=$(backendKey)"
+                terraform validate
 
   - stage: Plan
     displayName: Plan Terraform
@@ -71,33 +64,32 @@ stages:
         steps:
           - checkout: self
 
-          - task: TerraformInstaller@1
-            displayName: Install Terraform
-            inputs:
-              terraformVersion: $(terraformVersion)
-
-          - task: TerraformTaskV4@4
-            displayName: Terraform init
-            inputs:
-              provider: azurerm
-              command: init
-              workingDirectory: $(workingDirectory)
-              backendServiceArm: $(serviceConnection)
-              backendAzureRmResourceGroupName: $(backendResourceGroup)
-              backendAzureRmStorageAccountName: $(backendStorageAccount)
-              backendAzureRmContainerName: $(backendContainer)
-              backendAzureRmKey: $(backendKey)
-
-          - task: TerraformTaskV4@4
+          - task: AzureCLI@2
             displayName: Terraform plan
             inputs:
-              provider: azurerm
-              command: plan
-              environmentServiceNameAzureRM: $(serviceConnection)
-              workingDirectory: $(workingDirectory)
-              commandOptions: -var-file=terraform.tfvars -out=$(Pipeline.Workspace)/tfplan
+              azureSubscription: $(serviceConnection)
+              scriptType: bash
+              scriptLocation: inlineScript
+              addSpnToEnvironment: true
+              inlineScript: |
+                set -euo pipefail
+                curl -fsSL "https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip" -o terraform.zip
+                unzip -o terraform.zip
+                sudo mv terraform /usr/local/bin/
+                cd "$(workingDirectory)"
+                export ARM_CLIENT_ID="$servicePrincipalId"
+                export ARM_CLIENT_SECRET="$servicePrincipalKey"
+                export ARM_TENANT_ID="$tenantId"
+                export ARM_SUBSCRIPTION_ID="$(az account show --query id -o tsv)"
+                terraform init -input=false \
+                  -backend-config="resource_group_name=$(backendResourceGroup)" \
+                  -backend-config="storage_account_name=$(backendStorageAccount)" \
+                  -backend-config="container_name=$(backendContainer)" \
+                  -backend-config="key=$(backendKey)"
+                terraform plan -input=false -var-file=terraform.tfvars -out="$(Pipeline.Workspace)/tfplan"
+                cp "$(Pipeline.Workspace)/tfplan" "$(Build.ArtifactStagingDirectory)/tfplan"
 
-          - publish: $(Pipeline.Workspace)/tfplan
+          - publish: $(Build.ArtifactStagingDirectory)/tfplan
             displayName: Publish plan artifact
             artifact: tfplan
 
@@ -120,28 +112,26 @@ stages:
                 - download: current
                   artifact: tfplan
 
-                - task: TerraformInstaller@1
-                  displayName: Install Terraform
-                  inputs:
-                    terraformVersion: $(terraformVersion)
-
-                - task: TerraformTaskV4@4
-                  displayName: Terraform init
-                  inputs:
-                    provider: azurerm
-                    command: init
-                    workingDirectory: $(workingDirectory)
-                    backendServiceArm: $(serviceConnection)
-                    backendAzureRmResourceGroupName: $(backendResourceGroup)
-                    backendAzureRmStorageAccountName: $(backendStorageAccount)
-                    backendAzureRmContainerName: $(backendContainer)
-                    backendAzureRmKey: $(backendKey)
-
-                - task: TerraformTaskV4@4
+                - task: AzureCLI@2
                   displayName: Terraform apply
                   inputs:
-                    provider: azurerm
-                    command: apply
-                    environmentServiceNameAzureRM: $(serviceConnection)
-                    workingDirectory: $(workingDirectory)
-                    commandOptions: $(Pipeline.Workspace)/tfplan
+                    azureSubscription: $(serviceConnection)
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    inlineScript: |
+                      set -euo pipefail
+                      curl -fsSL "https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip" -o terraform.zip
+                      unzip -o terraform.zip
+                      sudo mv terraform /usr/local/bin/
+                      cd "$(workingDirectory)"
+                      export ARM_CLIENT_ID="$servicePrincipalId"
+                      export ARM_CLIENT_SECRET="$servicePrincipalKey"
+                      export ARM_TENANT_ID="$tenantId"
+                      export ARM_SUBSCRIPTION_ID="$(az account show --query id -o tsv)"
+                      terraform init -input=false \
+                        -backend-config="resource_group_name=$(backendResourceGroup)" \
+                        -backend-config="storage_account_name=$(backendStorageAccount)" \
+                        -backend-config="container_name=$(backendContainer)" \
+                        -backend-config="key=$(backendKey)"
+                      terraform apply -input=false "$(Pipeline.Workspace)/tfplan/tfplan"

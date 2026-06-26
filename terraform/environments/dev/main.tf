@@ -1,12 +1,7 @@
 terraform {
   required_version = ">= 1.5.0"
 
-  backend "azurerm" {
-    resource_group_name  = "rg-devops-clintivinsicloud"
-    storage_account_name = "sttfdevcursororg01"
-    container_name       = "tfstate"
-    key                  = "dev.terraform.tfstate"
-  }
+  backend "azurerm" {}
 
   required_providers {
     azurerm = {
