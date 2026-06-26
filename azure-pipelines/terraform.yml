@@ -38,9 +38,10 @@ stages:
               addSpnToEnvironment: true
               inlineScript: |
                 set -euo pipefail
-                curl -fsSL "https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip" -o terraform.zip
-                unzip -o terraform.zip
-                sudo mv terraform /usr/local/bin/
+                curl -fsSL "https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip" -o /tmp/terraform.zip
+                mkdir -p /tmp/tfbin
+                unzip -o /tmp/terraform.zip -d /tmp/tfbin
+                export PATH="/tmp/tfbin:$PATH"
                 cd "$(workingDirectory)"
                 export ARM_CLIENT_ID="$servicePrincipalId"
                 export ARM_CLIENT_SECRET="$servicePrincipalKey"
@@ -73,9 +74,10 @@ stages:
               addSpnToEnvironment: true
               inlineScript: |
                 set -euo pipefail
-                curl -fsSL "https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip" -o terraform.zip
-                unzip -o terraform.zip
-                sudo mv terraform /usr/local/bin/
+                curl -fsSL "https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip" -o /tmp/terraform.zip
+                mkdir -p /tmp/tfbin
+                unzip -o /tmp/terraform.zip -d /tmp/tfbin
+                export PATH="/tmp/tfbin:$PATH"
                 cd "$(workingDirectory)"
                 export ARM_CLIENT_ID="$servicePrincipalId"
                 export ARM_CLIENT_SECRET="$servicePrincipalKey"
@@ -121,9 +123,10 @@ stages:
                     addSpnToEnvironment: true
                     inlineScript: |
                       set -euo pipefail
-                      curl -fsSL "https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip" -o terraform.zip
-                      unzip -o terraform.zip
-                      sudo mv terraform /usr/local/bin/
+                      curl -fsSL "https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip" -o /tmp/terraform.zip
+                      mkdir -p /tmp/tfbin
+                      unzip -o /tmp/terraform.zip -d /tmp/tfbin
+                      export PATH="/tmp/tfbin:$PATH"
                       cd "$(workingDirectory)"
                       export ARM_CLIENT_ID="$servicePrincipalId"
                       export ARM_CLIENT_SECRET="$servicePrincipalKey"
