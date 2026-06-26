@@ -6,6 +6,7 @@ trigger:
     include:
       - terraform/*
       - azure-pipelines/*
+      - apps/*
 
 pr: none
 
@@ -24,6 +25,7 @@ stages:
     jobs:
       - job: Validate
         displayName: Init and validate
+        timeoutInMinutes: 120
         pool:
           vmImage: ubuntu-latest
         steps:
@@ -60,6 +62,7 @@ stages:
     jobs:
       - job: Plan
         displayName: Terraform plan
+        timeoutInMinutes: 120
         pool:
           vmImage: ubuntu-latest
         steps:
@@ -103,6 +106,7 @@ stages:
       - deployment: Apply
         displayName: Terraform apply
         environment: dev
+        timeoutInMinutes: 120
         pool:
           vmImage: ubuntu-latest
         strategy:
