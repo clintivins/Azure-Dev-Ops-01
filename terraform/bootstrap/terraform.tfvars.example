@@ -1,0 +1,11 @@
+subscription_id      = "166cdf34-b6b5-4f6c-8380-b5eb960ee824"
+resource_group_name  = "rg-devops-clintivinsicloud"
+location             = "uksouth"
+storage_account_name = "sttfdevcursororg01"
+container_name       = "tfstate"
+
+tags = {
+  managed_by = "terraform"
+  purpose    = "remote-state"
+  project    = "dev-project-01"
+}
