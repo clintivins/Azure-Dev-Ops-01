@@ -39,11 +39,16 @@ stages:
             displayName: Terraform format and validate
             inputs:
               azureSubscription: $(azureServiceConnection)
+              addSpnToEnvironment: true
               scriptType: bash
               scriptLocation: inlineScript
               workingDirectory: $(terraformWorkingDirectory)
               inlineScript: |
                 set -euo pipefail
+                export ARM_CLIENT_ID="$servicePrincipalId"
+                export ARM_CLIENT_SECRET="$servicePrincipalKey"
+                export ARM_TENANT_ID="$tenantId"
+                export ARM_SUBSCRIPTION_ID="166cdf34-b6b5-4f6c-8380-b5eb960ee824"
                 terraform fmt -check -recursive
                 terraform init -input=false
                 terraform validate
@@ -75,11 +80,16 @@ stages:
             displayName: Create Terraform plan
             inputs:
               azureSubscription: $(azureServiceConnection)
+              addSpnToEnvironment: true
               scriptType: bash
               scriptLocation: inlineScript
               workingDirectory: $(terraformWorkingDirectory)
               inlineScript: |
                 set -euo pipefail
+                export ARM_CLIENT_ID="$servicePrincipalId"
+                export ARM_CLIENT_SECRET="$servicePrincipalKey"
+                export ARM_TENANT_ID="$tenantId"
+                export ARM_SUBSCRIPTION_ID="166cdf34-b6b5-4f6c-8380-b5eb960ee824"
                 terraform init -input=false
                 terraform plan -input=false -var-file=terraform.tfvars.example -out=tfplan
 
@@ -123,10 +133,15 @@ stages:
                   displayName: Apply Terraform plan
                   inputs:
                     azureSubscription: $(azureServiceConnection)
+                    addSpnToEnvironment: true
                     scriptType: bash
                     scriptLocation: inlineScript
                     workingDirectory: $(terraformWorkingDirectory)
                     inlineScript: |
                       set -euo pipefail
+                      export ARM_CLIENT_ID="$servicePrincipalId"
+                      export ARM_CLIENT_SECRET="$servicePrincipalKey"
+                      export ARM_TENANT_ID="$tenantId"
+                      export ARM_SUBSCRIPTION_ID="166cdf34-b6b5-4f6c-8380-b5eb960ee824"
                       terraform init -input=false
                       terraform apply -input=false "$(Pipeline.Workspace)/terraform-plan/tfplan"
