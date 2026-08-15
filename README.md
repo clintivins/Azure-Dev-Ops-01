@@ -6,8 +6,11 @@ This Terraform starter creates a small Azure Landing Zone management-group found
 - `Platform`, `Landing Zones`, and `Sandbox` child management groups
 - The supplied subscription associated with `Landing Zones`
 - An allowed-locations policy assignment for the landing-zone scope
+- Two audit-only Entra ID-aligned policies at the platform scope: managed identity coverage and Key Vault RBAC authorization
 
 It does not yet create hub networking, Azure Firewall, private DNS, identity resources, or workload subscriptions. Those should be added after deciding whether this subscription is the platform, connectivity, identity, or workload subscription. A production ALZ normally uses separate subscriptions for those concerns.
+
+Azure Policy does not directly configure tenant-level Entra ID controls such as MFA, Conditional Access, or Identity Protection. Those controls require Microsoft Graph/Entra configuration and are intentionally outside this Terraform policy feature.
 
 ## Prerequisites
 
