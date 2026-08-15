@@ -18,3 +18,6 @@
 .DS_Store
 .idea/
 .vscode/
+
+# Local provider lock file
+**/.terraform.lock.hcl
