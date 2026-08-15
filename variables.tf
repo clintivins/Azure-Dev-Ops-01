@@ -17,5 +17,5 @@ variable "root_management_group_name" {
 variable "location" {
   description = "Azure region reserved for future landing-zone resources."
   type        = string
-  default     = "eastus"
+  default     = "uksouth"
 }

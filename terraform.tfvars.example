@@ -2,4 +2,4 @@ subscription_id = "166cdf34-b6b5-4f6c-8380-b5eb960ee824"
 tenant_id       = "06091beb-bacb-4e5a-815a-7f644cac1ce5"
 
 root_management_group_name = "alz"
-location                   = "eastus"
+location                   = "uksouth"
