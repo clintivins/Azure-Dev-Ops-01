@@ -22,10 +22,17 @@ stages:
         pool:
           vmImage: ubuntu-latest
         steps:
-          - task: TerraformInstaller@1
+          - task: Bash@3
             displayName: Install Terraform
             inputs:
-              terraformVersion: $(terraformVersion)
+              targetType: inline
+              script: |
+                set -euo pipefail
+                mkdir -p "$HOME/bin"
+                curl -fsSLo /tmp/terraform.zip "https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip"
+                unzip -oq /tmp/terraform.zip -d "$HOME/bin"
+                echo "##vso[task.prependpath]$HOME/bin"
+                terraform version
 
           - task: AzureCLI@2
             displayName: Terraform format and validate
@@ -50,10 +57,17 @@ stages:
         pool:
           vmImage: ubuntu-latest
         steps:
-          - task: TerraformInstaller@1
+          - task: Bash@3
             displayName: Install Terraform
             inputs:
-              terraformVersion: $(terraformVersion)
+              targetType: inline
+              script: |
+                set -euo pipefail
+                mkdir -p "$HOME/bin"
+                curl -fsSLo /tmp/terraform.zip "https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip"
+                unzip -oq /tmp/terraform.zip -d "$HOME/bin"
+                echo "##vso[task.prependpath]$HOME/bin"
+                terraform version
 
           - task: AzureCLI@2
             displayName: Create Terraform plan
@@ -90,10 +104,17 @@ stages:
                 - download: current
                   artifact: terraform-plan
 
-                - task: TerraformInstaller@1
+                - task: Bash@3
                   displayName: Install Terraform
                   inputs:
-                    terraformVersion: $(terraformVersion)
+                    targetType: inline
+                    script: |
+                      set -euo pipefail
+                      mkdir -p "$HOME/bin"
+                      curl -fsSLo /tmp/terraform.zip "https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip"
+                      unzip -oq /tmp/terraform.zip -d "$HOME/bin"
+                      echo "##vso[task.prependpath]$HOME/bin"
+                      terraform version
 
                 - task: AzureCLI@2
                   displayName: Apply Terraform plan
