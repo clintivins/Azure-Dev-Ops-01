@@ -31,6 +31,7 @@ stages:
                 mkdir -p "$HOME/bin"
                 curl -fsSLo /tmp/terraform.zip "https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip"
                 unzip -oq /tmp/terraform.zip -d "$HOME/bin"
+                export PATH="$HOME/bin:$PATH"
                 echo "##vso[task.prependpath]$HOME/bin"
                 terraform version
 
@@ -66,6 +67,7 @@ stages:
                 mkdir -p "$HOME/bin"
                 curl -fsSLo /tmp/terraform.zip "https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip"
                 unzip -oq /tmp/terraform.zip -d "$HOME/bin"
+                export PATH="$HOME/bin:$PATH"
                 echo "##vso[task.prependpath]$HOME/bin"
                 terraform version
 
@@ -113,6 +115,7 @@ stages:
                       mkdir -p "$HOME/bin"
                       curl -fsSLo /tmp/terraform.zip "https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip"
                       unzip -oq /tmp/terraform.zip -d "$HOME/bin"
+                      export PATH="$HOME/bin:$PATH"
                       echo "##vso[task.prependpath]$HOME/bin"
                       terraform version
 
